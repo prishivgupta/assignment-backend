@@ -14,11 +14,11 @@ module.exports.addEmployee = [
             return res.status(400).json({ errors: errors.array() });
         }
     
-        const { emloyeeName, designation, gender } = req.body;
+        const { employeeName, designation, gender } = req.body;
   
         try {
 
-            const employee = await employeeModel.create({ emloyeeName, designation, gender });
+            const employee = await employeeModel.create({ employeeName, designation, gender });
 
             res.status(201).json({ employee: employee, message: "Successfully Added Employee" });
             
@@ -49,13 +49,17 @@ module.exports.editEmployee = [
             return res.status(400).json({ errors: errors.array() });
         }
     
-        const { employeeId, emloyeeName, designation, gender } = req.body;
+        const { employeeId, employeeName, designation, gender } = req.body;
   
         try {
 
-            const employee = await employeeModel.findOneAndUpdate({ _id: employeeId }, { emloyeeName, designation, gender });
+            const employee = await employeeModel.findOneAndUpdate({ _id: employeeId }, { employeeName, designation, gender });
 
-            res.status(201).json({ employee: employee, message: "Successfully Edited employee" });
+            if (employee) {
+                res.status(201).json({ employee: employee, message: "Successfully Edited employee" });
+            } else {
+                res.status(400).json({ error: { message: "Employee Doesnt exist" } });
+            }
             
         }
     
@@ -75,7 +79,13 @@ module.exports.deleteEmployee = async (req, res) => {
     try {
 
         const employee = await employeeModel.findOneAndDelete({ _id: req.params.id });
-        res.status(201).json({ employee: employee, message: "Successfully Deleted employee" });
+
+        if (employee) {
+            res.status(201).json({ employee: employee, message: "Successfully Deleted employee" });
+        } else {
+            res.status(400).json({ error: { message: "Employee Doesnt exist" } });
+        }
+        
         
     }
 
@@ -93,7 +103,12 @@ module.exports.getEmployeeById = async (req, res) => {
     try {
 
         const employee = await employeeModel.findOne({ _id: req.params.id });
-        res.status(201).json({ employee: employee, message: "Employee Details fetched Successfully" });
+
+        if (employee) {
+            res.status(201).json({ employee: employee, message: "Employee Details fetched Successfully" });
+        } else {
+            res.status(400).json({ error: { message: "Employee Doesnt exist" } });
+        }
         
     }
 
@@ -114,10 +129,10 @@ module.exports.getAllEmployees = async (req, res) => {
         let pageSize = parseInt(req.query.pageSize) || 10;
         let skip = (page - 1) * pageSize;
         
-        let count = await feedModel.countDocuments({ 
+        let count = await employeeModel.countDocuments({ 
         });
 
-        const feeds = await feedModel.find({ 
+        const employees = await employeeModel.find({ 
         })
         .skip(skip)
         .limit(pageSize);
